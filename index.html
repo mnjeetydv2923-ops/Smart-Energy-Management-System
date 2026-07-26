@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Energy Monitoring System</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">⚡</span>
+    <div>
+      <h1>Smart Energy Monitoring System</h1>
+      <p class="subtitle">IoT-based Real-Time Energy Tracking &amp; Data Analysis</p>
+    </div>
+  </div>
+  <div class="range-select">
+    <label for="hoursRange">Time Range:</label>
+    <select id="hoursRange">
+      <option value="1">Last 1 hour</option>
+      <option value="6">Last 6 hours</option>
+      <option value="24" selected>Last 24 hours</option>
+      <option value="168">Last 7 days</option>
+    </select>
+  </div>
+</header>
+
+<main>
+
+  <!-- Summary Cards -->
+  <section class="cards">
+    <div class="card">
+      <div class="card-icon">🔋</div>
+      <div>
+        <p class="card-label">Total Energy Consumed</p>
+        <p class="card-value" id="totalEnergy">-- kWh</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">💰</div>
+      <div>
+        <p class="card-label">Estimated Cost</p>
+        <p class="card-value" id="totalCost">₹--</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📈</div>
+      <div>
+        <p class="card-label">Average Active Power</p>
+        <p class="card-value" id="avgPower">-- W</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔌</div>
+      <div>
+        <p class="card-label">Devices Active</p>
+        <p class="card-value" id="activeDevices">-- / --</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Charts -->
+  <section class="charts-grid">
+    <div class="panel">
+      <h2>Hourly Consumption Trend</h2>
+      <canvas id="trendChart"></canvas>
+    </div>
+    <div class="panel">
+      <h2>Device-wise Energy Share</h2>
+      <canvas id="deviceChart"></canvas>
+    </div>
+  </section>
+
+  <section class="charts-grid">
+    <div class="panel">
+      <h2>Peak Demand Hours</h2>
+      <canvas id="peakChart"></canvas>
+    </div>
+    <div class="panel">
+      <h2>     
+      <div id="anomalyList" class="anomaly-list">
+        <p class="empty-state">No anomalies detected yet.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live device status -->
+  <section class="panel">
+    <h2>Live Device Status</h2>
+    <div id="deviceGrid" class="device-grid"></div>
+  </section>
+
+</main>
+
+<footer>
+  <p>BTech Project &mdash; Smart Energy Monitoring System using IoT &amp; Data Analysis | Auto-refreshing every 5s</p>
+</footer>
+
+<script src="js/script.js"></script>
+</body>
+</html>
