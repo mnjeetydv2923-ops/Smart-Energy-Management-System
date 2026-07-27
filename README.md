@@ -1,132 +1,94 @@
-# ⚡ Smart Energy Monitoring System
+# Smart Energy Monitoring System using IoT and Data Analysis
 
-<div align="center">
+A full-stack BTech project that simulates a smart-meter IoT network,
+stores readings in a database, analyzes consumption with **pandas**,
+and displays everything on a live, auto-refreshing web dashboard.
 
-![License](https://img.shields.io/badge/License-MIT-green)
-![Python](https://img.shields.io/badge/Python-3.11-blue)
-![Flask](https://img.shields.io/badge/Flask-Web_App-black)
-![IoT](https://img.shields.io/badge/IoT-Energy-orange)
-![Status](https://img.shields.io/badge/Status-Active-success)
+## Tech Stack
+- **Backend:** Python, Flask (REST API)
+- **Database:** SQLite
+- **Data Analysis:** pandas / numpy
+- **IoT Layer:** Simulated smart-meter sensor readings (background thread) — designed to be swapped for real ESP32 / ACS712 (current sensor) / ZMPT101B (voltage sensor) hardware over MQTT or Serial
+- **Frontend:** HTML, CSS, JavaScript, Chart.js (no framework needed)
 
-A modern IoT-based platform for monitoring, analyzing, and visualizing real-time energy consumption.
+## Features
+- Live dashboard: total energy (kWh), estimated electricity cost, average
+  active power, active device count
+- Device-wise energy consumption (doughnut chart)
+- Hourly consumption trend (line chart)
+- Peak demand hour detection (bar chart)
+- Statistical anomaly detection (z-score based) — flags abnormal power spikes,
+  e.g. a faulty appliance drawing more current than usual
+- Live per-device status cards (ON/OFF, voltage, current, power)
+- Selectable time range: 1 hr / 6 hr / 24 hr / 7 days
 
-</div>
-
----
-
-## 📖 Overview
-
-The Smart Energy Monitoring System collects electricity usage data from smart devices or sensors, processes it in real time, and presents interactive dashboards for users. The system helps reduce electricity waste by providing usage analytics and alerts.
-
----
-
-## ✨ Features
-
-- ⚡ Real-time energy monitoring
-- 📊 Interactive dashboard
-- 📈 Daily, weekly and monthly reports
-- 🔔 High energy consumption alerts
-- 🌐 IoT device integration
-- 📱 Responsive web interface
-- 🔐 Secure authentication
-
----
-
-## 🏗️ System Architecture
-
-```mermaid
-graph LR
-A[Energy Meter] --> B[IoT Sensor]
-B --> C[Backend API]
-C --> D[(Database)]
-C --> E[Analytics Engine]
-E --> F[Web Dashboard]
-F --> G[User]
+## Project Structure
+```
+smart_energy_monitoring/
+├── app.py              # Flask app + REST API routes
+├── database.py         # SQLite schema + queries
+├── iot_simulator.py    # Simulated IoT sensor data generator (background thread)
+├── data_analysis.py    # pandas-based analytics (trends, cost, anomalies)
+├── requirements.txt
+├── static/
+│   ├── index.html
+│   ├── css/style.css
+│   └── js/script.js
+└── README.md
 ```
 
----
+## Setup & Run
 
-## 📊 Dashboard
+1. Install Python 3.9+ then install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-- Live Power Consumption
-- Voltage Monitoring
-- Current Monitoring
-- Energy Analytics
-- Device Status
+2. Run the server:
+   ```bash
+   python app.py
+   ```
 
----
+3. Open your browser at:
+   ```
+   http://127.0.0.1:5000
+   ```
 
-## 🛠️ Technology Stack
+The app auto-creates `smart_energy.db` on first run, seeds 8 sample
+devices (AC, Fridge, Washing Machine, Fan, Tube Light, Geyser, TV,
+Microwave), and starts generating a simulated reading for every device
+every 5 seconds. The dashboard auto-refreshes every 5 seconds too, so
+you'll see live data building up immediately.
 
-| Frontend | Backend | Database | Hardware |
-|-----------|----------|----------|----------|
-| HTML | Flask / Node.js | MySQL | ESP32 |
-| CSS | REST API | MongoDB | Arduino |
-| JavaScript | Python | Firebase | Energy Meter |
+## How the "IoT" part works
+`iot_simulator.py` runs in a background thread and generates realistic
+readings (voltage, current, power, energy) for each device, with
+probabilities biased by time of day (e.g. AC more likely at night,
+lights more likely in the evening) and an occasional random power spike
+to demonstrate anomaly detection. This mimics a network of smart plugs
+reporting into a hub.
 
----
+**To connect real hardware:** replace `_simulate_device_state()` in
+`iot_simulator.py` with code that reads from your actual sensors (e.g.
+an ESP32 publishing JSON over MQTT, or reading a serial port from an
+Arduino + ACS712 current sensor + ZMPT101B voltage sensor). Everything
+downstream (database, analysis, dashboard) works unchanged, since it
+only cares about the `(voltage, current, power_w, energy_kwh, status)`
+tuple.
 
-## 📂 Project Structure
+## How the data analysis part works
+`data_analysis.py` uses `pandas` to:
+- Group readings by device and time to compute consumption trends
+- Estimate electricity cost using a configurable tariff (`TARIFF_PER_KWH`
+  in INR/kWh — change this to your local electricity board's rate)
+- Compute per-device mean and standard deviation of power draw, then
+  flag any reading with a z-score beyond ±2.5 as an anomaly (useful for
+  detecting faulty appliances or electricity theft/leakage)
 
-```text
-Smart-Energy-Monitoring-System/
-│
-├── frontend/
-├── backend/
-├── database/
-├── images/
-├── docs/
-├── api/
-├── README.md
-└── requirements.txt
-```
-
----
-
-## 📷 Screenshots
-
-<img src="images/dashboard.png" width="800">
-
-<img src="images/analytics.png" width="800">
-
----
-
-## 🚀 Installation
-
-```bash
-git clone https://github.com/yourusername/Smart-Energy-Monitoring-System.git
-
-cd Smart-Energy-Monitoring-System
-
-pip install -r requirements.txt
-
-python app.py
-```
-
----
-
-## 📈 Future Improvements
-
-- AI-based energy prediction
-- Solar power integration
-- Mobile application
-- Smart notifications
-- Voice assistant support
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-
-Fork the repository, create a feature branch, and submit a Pull Request.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
-
-⭐ If you found this project useful, don't forget to star the repository.
+## Ideas for extending this project (for your report / viva)
+- Swap SQLite for InfluxDB/TimescaleDB for true time-series storage at scale
+- Add user authentication and multi-household support
+- Add ML-based load forecasting (e.g. Prophet or LSTM) instead of z-score anomaly detection
+- Push alerts via email/SMS/Telegram when anomalies are detected
+- Deploy backend on Raspberry Pi as a home energy-monitoring hub
+- Add a mobile app (Flutter/React Native) consuming the same REST API
